@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "25775677166",
+    "project_id": "whirlwashcopyy",
+    "storage_bucket": "whirlwashcopyy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25775677166:android:830a6aff4bd63b384c5dff",
+        "android_client_info": {
+          "package_name": "com.whirlwashcopyy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm6pF6X7-SGgQBVnIJg8K1XenW6YB5IfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
