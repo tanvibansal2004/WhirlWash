@@ -104,8 +104,8 @@
 //       expiryTime.setSeconds(expiryTime.getSeconds() + 45);
 
 //       const machineRef = firestore().collection('machines').doc(machine.id);
-//       await machineRef.update({ 
-//         inUse: true, 
+//       await machineRef.update({
+//         inUse: true,
 //         bookedBy: currentUser.email,
 //         bookingTime: firestore.FieldValue.serverTimestamp(),
 //         status: 'in-use',
@@ -132,7 +132,7 @@
 //   //     // Check if the machine is still booked by this user
 //   //     const machineDoc = await firestore().collection('machines').doc(machineId).get();
 //   //     const machineData = machineDoc.data();
-      
+
 //   //     if (!machineData || machineData.bookedBy !== userEmail) {
 //   //       return; // Machine is already unbooked or booked by someone else
 //   //     }
@@ -184,36 +184,36 @@
 //     try {
 //       const machineDoc = await firestore().collection('machines').doc(machineId).get();
 //       const machineData = machineDoc.data();
-      
+
 //       if (!machineData || machineData.bookedBy !== userEmail) {
 //         return;
 //       }
-  
+
 //       // Fetch user details from Firestore
 //       const userQuerySnapshot = await firestore()
 //         .collection('students')
 //         .where('Email', '==', userEmail)
 //         .limit(1)
 //         .get();
-  
+
 //       let lastUserName = "Unknown User";
 //       let updatedLastUses = ["", "", "", "", ""];
-  
+
 //       if (!userQuerySnapshot.empty) {
 //         const userDoc = userQuerySnapshot.docs[0].ref;
 //         const userData = userQuerySnapshot.docs[0].data();
-  
+
 //         lastUserName = userData.Name || "Unknown"; // Assign username properly
-  
+
 //         updatedLastUses = userData.lastUses || ["", "", "", "", ""];
 //         const newEntry = new Date().toISOString();
 //         updatedLastUses.shift();
 //         updatedLastUses.push(newEntry);
-  
+
 //         // Update user's lastUses list
 //         await userDoc.update({ lastUses: updatedLastUses });
 //       }
-  
+
 //       // **Update Firestore with both lastUserName & lastUserMobile**
 //       await firestore().collection('machines').doc(machineId).update({
 //         inUse: false,
@@ -225,22 +225,21 @@
 //         lastUsedTime: new Date().toISOString(),
 //         autoUnbooked: true
 //       });
-  
+
 //       console.log(`Machine ${machineId} auto-unbooked. Last user: ${lastUserName}`);
 //     } catch (error) {
 //       console.error('Error auto-unbooking machine:', error);
 //     }
 //   };
-  
 
 //   // Calculate time remaining for a machine
 //   const getTimeRemaining = (expiryTimeStr) => {
 //     if (!expiryTimeStr) return 0;
-    
+
 //     const expiryTime = new Date(expiryTimeStr);
 //     const now = new Date();
 //     const diffMs = expiryTime - now;
-    
+
 //     return Math.max(0, Math.floor(diffMs / 1000)); // Return seconds remaining
 //   };
 
@@ -276,10 +275,10 @@
 //           <View style={styles.grid}>
 //             {bookedMachines.length > 0 ? (
 //               bookedMachines.map(machine => (
-//                 <MachineCard 
-//                   key={machine.id} 
-//                   machine={machine} 
-//                   booked 
+//                 <MachineCard
+//                   key={machine.id}
+//                   machine={machine}
+//                   booked
 //                   getTimeRemaining={getTimeRemaining}
 //                 />
 //               ))
@@ -287,15 +286,15 @@
 //               <Text style={styles.noMachinesText}>No booked machines</Text>
 //             )}
 //           </View>
-          
+
 //           {/* New section for machines under maintenance */}
 //           <Text style={styles.sectionTitle}>Machines under maintenance</Text>
 //           <View style={styles.grid}>
 //             {maintenanceMachines.length > 0 ? (
 //               maintenanceMachines.map(machine => (
-//                 <MachineCard 
-//                   key={machine.id} 
-//                   machine={machine} 
+//                 <MachineCard
+//                   key={machine.id}
+//                   machine={machine}
 //                   maintenance
 //                   disabled
 //                 />
@@ -312,13 +311,13 @@
 
 // const MachineCard = ({ machine, onPress, booked, maintenance, getTimeRemaining }) => {
 //   const [timeRemaining, setTimeRemaining] = useState(0);
-  
+
 //   useEffect(() => {
 //     let timer;
 //     if (booked && machine.expiryTime) {
 //       // Set initial time
 //       setTimeRemaining(getTimeRemaining(machine.expiryTime));
-      
+
 //       // Update timer every second
 //       timer = setInterval(() => {
 //         const remaining = getTimeRemaining(machine.expiryTime);
@@ -328,7 +327,7 @@
 //         }
 //       }, 1000);
 //     }
-    
+
 //     return () => {
 //       if (timer) clearInterval(timer);
 //     };
@@ -337,7 +336,7 @@
 //   return (
 //     <TouchableOpacity
 //       style={[
-//         styles.machineCard, 
+//         styles.machineCard,
 //         booked && styles.bookedMachine,
 //         maintenance && styles.maintenanceMachine
 //       ]}
@@ -349,7 +348,7 @@
 //         style={styles.machineIcon}
 //       />
 //       <Text style={styles.machineText}>No. {machine.number}</Text>
-      
+
 //       {booked && (
 //         <View style={styles.bookedInfo}>
 //           {machine.expiryTime && (
@@ -362,13 +361,13 @@
 //           </Text>
 //         </View>
 //       )}
-      
+
 //       {maintenance && (
 //         <View style={styles.maintenanceInfo}>
 //           <Text style={styles.maintenanceText}>Under Maintenance</Text>
 //         </View>
 //       )}
-      
+
 //       {/* Only show user details on machines that were auto-unbooked */}
 //       {!booked && !maintenance && machine.autoUnbooked === true && (
 //         <View style={styles.lastUserInfo}>
@@ -490,7 +489,7 @@
 
 // export default MachinePage;
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -516,6 +515,8 @@ const MachinePage = () => {
   const [restrictionType, setRestrictionType] = useState(null);
   const currentUser = auth().currentUser;
 
+  const [hasPenaltyNotification, setHasPenaltyNotification] = useState(false);
+
   useEffect(() => {
     // Set up real-time listener for machine collection
     const unsubscribe = firestore()
@@ -530,14 +531,14 @@ const MachinePage = () => {
           snapshot.forEach(doc => {
             const data = doc.data();
             if (data.underMaintenance === true) {
-              maintenance.push({ id: doc.id, ...data });
+              maintenance.push({id: doc.id, ...data});
             } else if (data.inUse === true) {
               if (data.bookedBy === currentUser?.email) {
                 hasBooking = true;
               }
-              booked.push({ id: doc.id, ...data });
+              booked.push({id: doc.id, ...data});
             } else {
-              available.push({ id: doc.id, ...data });
+              available.push({id: doc.id, ...data});
             }
           });
 
@@ -556,8 +557,62 @@ const MachinePage = () => {
           console.error('Error listening to machines collection:', error);
           Alert.alert('Error', 'Failed to load machine data.');
           setLoading(false);
-        }
+        },
       );
+
+    if (!currentUser) return;
+    const userStatusUnsubscribe = firestore()
+      .collection('students')
+      .where('Email', '==', currentUser.email)
+      .limit(1)
+      .onSnapshot(
+        snapshot => {
+          if (!snapshot.empty) {
+            const userData = snapshot.docs[0].data();
+            const userRef = snapshot.docs[0].ref;
+
+            // Check for cooldown period
+            if (userData.cooldownUntil) {
+              const cooldownTime = new Date(userData.cooldownUntil);
+              if (cooldownTime > new Date()) {
+                setUserCooldownUntil(cooldownTime);
+              } else {
+                setUserCooldownUntil(null);
+              }
+            } else {
+              setUserCooldownUntil(null);
+            }
+
+            // Check for penalty period
+            if (userData.penaltyUntil) {
+              const penaltyTime = new Date(userData.penaltyUntil);
+              if (penaltyTime > new Date()) {
+                setPenaltyUntil(penaltyTime);
+
+                // Check if there's a pending notification
+                if (userData.hasPenaltyNotification === true) {
+                  Alert.alert(
+                    'Penalty Applied',
+                    'You did not unbook your machine and it was automatically released. You will not be able to book again for 1 minute.',
+                  );
+
+                  // Clear the notification flag
+                  userRef.update({hasPenaltyNotification: false});
+                }
+              } else {
+                setPenaltyUntil(null);
+              }
+            } else {
+              setPenaltyUntil(null);
+            }
+          }
+        },
+        error => {
+          console.error('Error listening to user status:', error);
+        },
+      );
+
+    return () => userStatusUnsubscribe();
 
     // Clean up the listener when component unmounts
     return () => unsubscribe();
@@ -575,7 +630,7 @@ const MachinePage = () => {
         snapshot => {
           if (!snapshot.empty) {
             const userData = snapshot.docs[0].data();
-            
+
             // Check for cooldown period
             if (userData.cooldownUntil) {
               const cooldownTime = new Date(userData.cooldownUntil);
@@ -587,7 +642,7 @@ const MachinePage = () => {
             } else {
               setUserCooldownUntil(null);
             }
-            
+
             // Check for penalty period
             if (userData.penaltyUntil) {
               const penaltyTime = new Date(userData.penaltyUntil);
@@ -603,7 +658,7 @@ const MachinePage = () => {
         },
         error => {
           console.error('Error listening to user status:', error);
-        }
+        },
       );
 
     return () => userStatusUnsubscribe();
@@ -612,7 +667,7 @@ const MachinePage = () => {
   // Add a timer to update cooldown/penalty countdown every second
   useEffect(() => {
     const now = new Date();
-    
+
     if (penaltyUntil && penaltyUntil > now) {
       setRestrictionType('penalty');
       setRestrictionSeconds(Math.ceil((penaltyUntil - now) / 1000));
@@ -623,70 +678,215 @@ const MachinePage = () => {
       setRestrictionType(null);
       setRestrictionSeconds(0);
     }
-    
+
     const timer = setInterval(() => {
       const currentTime = new Date();
-      
+
       if (penaltyUntil && penaltyUntil > currentTime) {
         setRestrictionType('penalty');
         setRestrictionSeconds(Math.ceil((penaltyUntil - currentTime) / 1000));
       } else if (userCooldownUntil && userCooldownUntil > currentTime) {
         setRestrictionType('cooldown');
-        setRestrictionSeconds(Math.ceil((userCooldownUntil - currentTime) / 1000));
+        setRestrictionSeconds(
+          Math.ceil((userCooldownUntil - currentTime) / 1000),
+        );
       } else {
         setRestrictionType(null);
         setRestrictionSeconds(0);
       }
     }, 1000);
-    
+
     return () => clearInterval(timer);
   }, [penaltyUntil, userCooldownUntil]);
 
-  const handleBookMachine = async (machine) => {
+  // const handleBookMachine = async machine => {
+  //   try {
+  //     if (!currentUser) {
+  //       Alert.alert('Error', 'You must be logged in to book a machine.');
+  //       return;
+  //     }
+
+  //     if (machine.inUse) {
+  //       return; // Do nothing if the machine is already booked
+  //     }
+
+  //     // Check if user already has a booking
+  //     if (userHasBooking) {
+  //       Alert.alert('Error', 'You can only book one machine at a time.');
+  //       return;
+  //     }
+
+  //     // Check if user is in a cooldown period
+  //     if (restrictionType === 'cooldown' && restrictionSeconds > 0) {
+  //       Alert.alert(
+  //         'Booking not allowed',
+  //         `You need to wait ${restrictionSeconds} seconds before booking another machine.`,
+  //       );
+  //       return;
+  //     }
+
+  //     // Check if user is under penalty
+  //     if (restrictionType === 'penalty' && restrictionSeconds > 0) {
+  //       Alert.alert(
+  //         'Booking restricted',
+  //         `You have been penalized for not unbooking a machine. Please wait ${restrictionSeconds} seconds.`,
+  //       );
+  //       return;
+  //     }
+
+  //     // Fetch user details from students collection
+  //     const userQuery = await firestore()
+  //       .collection('students')
+  //       .where('Email', '==', currentUser.email)
+  //       .limit(1)
+  //       .get();
+
+  //     let userDetails = {};
+  //     let userDocRef = null;
+
+  //     if (!userQuery.empty) {
+  //       userDocRef = userQuery.docs[0].ref;
+  //       userDetails = userQuery.docs[0].data();
+  //     } else {
+  //       Alert.alert('Error', 'User profile not found.');
+  //       return;
+  //     }
+
+  //     // Calculate expiry time (45 seconds from now)
+  //     const expiryTime = new Date();
+  //     expiryTime.setSeconds(expiryTime.getSeconds() + 45);
+
+  //     const machineRef = firestore().collection('machines').doc(machine.id);
+  //     await machineRef.update({
+  //       inUse: true,
+  //       bookedBy: currentUser.email,
+  //       bookingTime: firestore.FieldValue.serverTimestamp(),
+  //       status: 'in-use',
+  //       expiryTime: expiryTime.toISOString(),
+  //       userName: userDetails.Name || '',
+  //       userMobile: userDetails.MobileNo || '',
+  //       autoUnbooked: false, // Flag to track if auto-unbooked
+  //     });
+
+  //     // Set a timer to auto-unbook the machine
+  //     setTimeout(() => {
+  //       autoUnbookMachine(machine.id, currentUser.email);
+  //     }, 45000); // 45 seconds
+
+  //     Alert.alert(`Success! Machine No. ${machine.number} booked!`);
+  //   } catch (error) {
+  //     console.error('Error booking machine:', error);
+  //     Alert.alert('Error', 'Failed to book machine.');
+  //   }
+  // };
+
+  // const autoUnbookMachine = async (machineId, userEmail) => {
+  // try {
+  //   const machineDoc = await firestore().collection('machines').doc(machineId).get();
+  //   const machineData = machineDoc.data();
+
+  //   if (!machineData || machineData.bookedBy !== userEmail) {
+  //     return;
+  //   }
+
+  //   // Fetch user details from Firestore
+  //   const userQuerySnapshot = await firestore()
+  //     .collection('students')
+  //     .where('Email', '==', userEmail)
+  //     .limit(1)
+  //     .get();
+
+  //   let lastUserName = "Unknown User";
+  //   let updatedLastUses = ["", "", "", "", ""];
+
+  //   if (!userQuerySnapshot.empty) {
+  //     const userDoc = userQuerySnapshot.docs[0].ref;
+  //     const userData = userQuerySnapshot.docs[0].data();
+
+  //     lastUserName = userData.Name || "Unknown";
+
+  //     updatedLastUses = userData.lastUses || ["", "", "", "", ""];
+  //     const newEntry = new Date().toISOString();
+  //     updatedLastUses.shift();
+  //     updatedLastUses.push(newEntry);
+
+  //     // Calculate penalty time (1 minute from now)
+  //     const penaltyTime = new Date();
+  //     penaltyTime.setMinutes(penaltyTime.getMinutes() + 1);
+
+  //     // Update user's lastUses list and add penalty
+  //     await userDoc.update({
+  //       lastUses: updatedLastUses,
+  //       penaltyUntil: penaltyTime.toISOString(),
+  //       hasPenaltyNotification: true // Add a flag to indicate pending notification
+  //     });
+  //   }
+
+  //   await firestore().collection('machines').doc(machineId).update({
+  //     inUse: false,
+  //     bookedBy: null,
+  //     status: 'available',
+  //     lastUsedBy: userEmail,
+  //     lastUserName: lastUserName,
+  //     lastUserMobile: machineData.userMobile,
+  //     lastUsedTime: new Date().toISOString(),
+  //     autoUnbooked: true
+  //   });
+
+  //   console.log(`Machine ${machineId} auto-unbooked. Last user: ${lastUserName}`);
+
+  //   // IMPORTANT: Remove the direct alert here - it's showing for everyone
+  //   // We'll handle user-specific alerts through the Firestore listener
+  // } catch (error) {
+  //   console.error('Error auto-unbooking machine:', error);
+  // }
+  // };
+
+  const handleBookMachine = async machine => {
     try {
       if (!currentUser) {
         Alert.alert('Error', 'You must be logged in to book a machine.');
         return;
       }
-
+  
       if (machine.inUse) {
         return; // Do nothing if the machine is already booked
       }
-
+  
       // Check if user already has a booking
       if (userHasBooking) {
         Alert.alert('Error', 'You can only book one machine at a time.');
         return;
       }
-
+  
       // Check if user is in a cooldown period
       if (restrictionType === 'cooldown' && restrictionSeconds > 0) {
         Alert.alert(
           'Booking not allowed',
-          `You need to wait ${restrictionSeconds} seconds before booking another machine.`
+          `You need to wait ${restrictionSeconds} seconds before booking another machine.`,
         );
         return;
       }
-
+  
       // Check if user is under penalty
       if (restrictionType === 'penalty' && restrictionSeconds > 0) {
         Alert.alert(
           'Booking restricted',
-          `You have been penalized for not unbooking a machine. Please wait ${restrictionSeconds} seconds.`
+          `You have been penalized for not unbooking a machine. Please wait ${restrictionSeconds} seconds.`,
         );
         return;
       }
-
+  
       // Fetch user details from students collection
       const userQuery = await firestore()
         .collection('students')
         .where('Email', '==', currentUser.email)
         .limit(1)
         .get();
-
+  
       let userDetails = {};
       let userDocRef = null;
-      
+  
       if (!userQuery.empty) {
         userDocRef = userQuery.docs[0].ref;
         userDetails = userQuery.docs[0].data();
@@ -694,84 +894,106 @@ const MachinePage = () => {
         Alert.alert('Error', 'User profile not found.');
         return;
       }
-
+  
       // Calculate expiry time (45 seconds from now)
       const expiryTime = new Date();
       expiryTime.setSeconds(expiryTime.getSeconds() + 45);
-
+  
       const machineRef = firestore().collection('machines').doc(machine.id);
-      await machineRef.update({ 
-        inUse: true, 
+      
+      // Fetch current machine data to update lastUses
+      const machineDoc = await machineRef.get();
+      const machineData = machineDoc.data();
+      
+      // Prepare updated lastUses array (last 3 users)
+      const updatedLastUses = machineData.lastUses || [];
+      const newUserEntry = {
+        email: currentUser.email,
+        name: userDetails.Name || '',
+        mobile: userDetails.MobileNo || '',
+        timestamp: new Date().toISOString()
+      };
+  
+      // Only add new user if not already the most recent user
+      if (!updatedLastUses.length || 
+          updatedLastUses[0].email !== currentUser.email) {
+        // Shift existing entries down
+        if (updatedLastUses.length >= 3) {
+          updatedLastUses.pop(); // Remove the oldest entry
+        }
+        updatedLastUses.unshift(newUserEntry);
+      }
+  
+      await machineRef.update({
+        inUse: true,
         bookedBy: currentUser.email,
         bookingTime: firestore.FieldValue.serverTimestamp(),
         status: 'in-use',
         expiryTime: expiryTime.toISOString(),
         userName: userDetails.Name || '',
         userMobile: userDetails.MobileNo || '',
-        autoUnbooked: false // Flag to track if auto-unbooked
+        autoUnbooked: false,
+        lastUses: updatedLastUses
       });
-
+  
       // Set a timer to auto-unbook the machine
       setTimeout(() => {
         autoUnbookMachine(machine.id, currentUser.email);
       }, 45000); // 45 seconds
-
+  
       Alert.alert(`Success! Machine No. ${machine.number} booked!`);
     } catch (error) {
       console.error('Error booking machine:', error);
       Alert.alert('Error', 'Failed to book machine.');
     }
   };
+  
 
   const autoUnbookMachine = async (machineId, userEmail) => {
     try {
-      const machineDoc = await firestore().collection('machines').doc(machineId).get();
+      const machineDoc = await firestore()
+        .collection('machines')
+        .doc(machineId)
+        .get();
       const machineData = machineDoc.data();
-      
+
       if (!machineData || machineData.bookedBy !== userEmail) {
         return;
       }
-  
+
       // Fetch user details from Firestore
       const userQuerySnapshot = await firestore()
         .collection('students')
         .where('Email', '==', userEmail)
         .limit(1)
         .get();
-  
-      let lastUserName = "Unknown User";
-      let updatedLastUses = ["", "", "", "", ""];
-  
+
+      let lastUserName = 'Unknown User';
+      let updatedLastUses = ['', '', '', '', ''];
+
       if (!userQuerySnapshot.empty) {
         const userDoc = userQuerySnapshot.docs[0].ref;
         const userData = userQuerySnapshot.docs[0].data();
-  
-        lastUserName = userData.Name || "Unknown";
-  
-        updatedLastUses = userData.lastUses || ["", "", "", "", ""];
+
+        lastUserName = userData.Name || 'Unknown';
+
+        updatedLastUses = userData.lastUses || ['', '', '', '', ''];
         const newEntry = new Date().toISOString();
         updatedLastUses.shift();
         updatedLastUses.push(newEntry);
-  
+
         // Calculate penalty time (1 minute from now)
         const penaltyTime = new Date();
         penaltyTime.setMinutes(penaltyTime.getMinutes() + 1);
-  
+
         // Update user's lastUses list and add penalty
-        await userDoc.update({ 
+        await userDoc.update({
           lastUses: updatedLastUses,
-          penaltyUntil: penaltyTime.toISOString()
+          penaltyUntil: penaltyTime.toISOString(),
+          hasPenaltyNotification: true, // Add a flag to indicate pending notification
         });
-        
-        // Show penalty alert if the user is currently using the app
-        if (userEmail === currentUser?.email) {
-          Alert.alert(
-            'Penalty Applied',
-            'You did not unbook your machine and it was automatically released. You will not be able to book again for 1 minute.'
-          );
-        }
       }
-  
+
       await firestore().collection('machines').doc(machineId).update({
         inUse: false,
         bookedBy: null,
@@ -780,71 +1002,172 @@ const MachinePage = () => {
         lastUserName: lastUserName,
         lastUserMobile: machineData.userMobile,
         lastUsedTime: new Date().toISOString(),
-        autoUnbooked: true
+        autoUnbooked: true,
       });
-  
-      console.log(`Machine ${machineId} auto-unbooked. Last user: ${lastUserName}`);
+
+      console.log(
+        `Machine ${machineId} auto-unbooked. Last user: ${lastUserName}`,
+      );
+
+      // IMPORTANT: Remove the direct alert here - it's showing for everyone
+      // We'll handle user-specific alerts through the Firestore listener
     } catch (error) {
       console.error('Error auto-unbooking machine:', error);
     }
   };
+
+  // const handleUnbookMachine = async machine => {
+  //   try {
+  //     if (!currentUser) {
+  //       Alert.alert('Error', 'You must be logged in to unbook a machine.');
+  //       return;
+  //     }
+
+  //     if (machine.bookedBy !== currentUser.email) {
+  //       Alert.alert(
+  //         'Error',
+  //         'You can only unbook machines that you have booked.',
+  //       );
+  //       return;
+  //     }
+
+  //     // Fetch user reference
+  //     const userQuery = await firestore()
+  //       .collection('students')
+  //       .where('Email', '==', currentUser.email)
+  //       .limit(1)
+  //       .get();
+
+  //     if (!userQuery.empty) {
+  //       const userDoc = userQuery.docs[0].ref;
+  //       const userData = userQuery.docs[0].data();
+
+  //       // Update lastUses array
+  //       let updatedLastUses = userData.lastUses || ['', '', '', '', ''];
+  //       const newEntry = new Date().toISOString();
+  //       updatedLastUses.shift();
+  //       updatedLastUses.push(newEntry);
+
+  //       // Calculate cooldown time (30 seconds from now)
+  //       const cooldownTime = new Date();
+  //       cooldownTime.setSeconds(cooldownTime.getSeconds() + 30);
+
+  //       // Update user with new lastUses and cooldown
+  //       await userDoc.update({
+  //         lastUses: updatedLastUses,
+  //         cooldownUntil: cooldownTime.toISOString(),
+  //       });
+  //     }
+
+  //     // Update machine status
+  //     const machineRef = firestore().collection('machines').doc(machine.id);
+  //     await machineRef.update({
+  //       inUse: false,
+  //       bookedBy: null,
+  //       status: 'available',
+  //       lastUsedBy: currentUser.email,
+  //       lastUserName: machine.userName || '',
+  //       lastUserMobile: machine.userMobile || '',
+  //       lastUsedTime: new Date().toISOString(),
+  //       autoUnbooked: false,
+  //     });
+
+  //     Alert.alert(
+  //       'Machine Unbooked',
+  //       'You have successfully unbooked the machine. You can book another machine after 30 seconds.',
+  //     );
+  //   } catch (error) {
+  //     console.error('Error unbooking machine:', error);
+  //     Alert.alert('Error', 'Failed to unbook machine.');
+  //   }
+  // };
+
+  // Calculate time remaining for a machine
   
-  const handleUnbookMachine = async (machine) => {
+  const handleUnbookMachine = async machine => {
     try {
       if (!currentUser) {
         Alert.alert('Error', 'You must be logged in to unbook a machine.');
         return;
       }
-      
+  
       if (machine.bookedBy !== currentUser.email) {
-        Alert.alert('Error', 'You can only unbook machines that you have booked.');
+        Alert.alert(
+          'Error',
+          'You can only unbook machines that you have booked.',
+        );
         return;
       }
-      
+  
       // Fetch user reference
       const userQuery = await firestore()
         .collection('students')
         .where('Email', '==', currentUser.email)
         .limit(1)
         .get();
-      
+  
       if (!userQuery.empty) {
         const userDoc = userQuery.docs[0].ref;
         const userData = userQuery.docs[0].data();
-        
+  
         // Update lastUses array
-        let updatedLastUses = userData.lastUses || ["", "", "", "", ""];
+        let updatedLastUses = userData.lastUses || ['', '', '', '', ''];
         const newEntry = new Date().toISOString();
         updatedLastUses.shift();
         updatedLastUses.push(newEntry);
-        
+  
         // Calculate cooldown time (30 seconds from now)
         const cooldownTime = new Date();
         cooldownTime.setSeconds(cooldownTime.getSeconds() + 30);
-        
+  
         // Update user with new lastUses and cooldown
         await userDoc.update({
           lastUses: updatedLastUses,
-          cooldownUntil: cooldownTime.toISOString()
+          cooldownUntil: cooldownTime.toISOString(),
         });
       }
-      
-      // Update machine status
+  
+      // Update machine status and lastUses
       const machineRef = firestore().collection('machines').doc(machine.id);
+      
+      // Fetch current machine data to update lastUses
+      const machineDoc = await machineRef.get();
+      const machineData = machineDoc.data();
+      
+      // Prepare updated lastUses array (last 3 users)
+      const updatedLastUses = machineData.lastUses || [];
+      const newUserEntry = {
+        email: currentUser.email,
+        name: machine.userName || '',
+        mobile: machine.userMobile || '',
+        timestamp: new Date().toISOString()
+      };
+  
+      // Only add new user if not already the most recent user
+      if (!updatedLastUses.length || 
+          updatedLastUses[0].email !== currentUser.email) {
+        // Shift existing entries down
+        if (updatedLastUses.length >= 3) {
+          updatedLastUses.pop(); // Remove the oldest entry
+        }
+        updatedLastUses.unshift(newUserEntry);
+      }
+  
       await machineRef.update({
         inUse: false,
         bookedBy: null,
         status: 'available',
         lastUsedBy: currentUser.email,
-        lastUserName: machine.userName || "",
-        lastUserMobile: machine.userMobile || "",
+        lastUserName: machine.userName || '',
+        lastUserMobile: machine.userMobile || '',
         lastUsedTime: new Date().toISOString(),
-        autoUnbooked: false
+        autoUnbooked: false,
+        lastUses: updatedLastUses
       });
-      
+  
       Alert.alert(
-        'Machine Unbooked', 
-        'You have successfully unbooked the machine. You can book another machine after 30 seconds.'
+        'Machine Unbooked',
+        'You have successfully unbooked the machine. You can book another machine after 30 seconds.',
       );
     } catch (error) {
       console.error('Error unbooking machine:', error);
@@ -852,14 +1175,13 @@ const MachinePage = () => {
     }
   };
 
-  // Calculate time remaining for a machine
-  const getTimeRemaining = (expiryTimeStr) => {
+  const getTimeRemaining = expiryTimeStr => {
     if (!expiryTimeStr) return 0;
-    
+
     const expiryTime = new Date(expiryTimeStr);
     const now = new Date();
     const diffMs = expiryTime - now;
-    
+
     return Math.max(0, Math.floor(diffMs / 1000)); // Return seconds remaining
   };
 
@@ -876,8 +1198,8 @@ const MachinePage = () => {
       {isUserRestricted && (
         <View style={styles.restrictionContainer}>
           <Text style={styles.restrictionText}>
-            {restrictionType === 'penalty' 
-              ? `Penalty: Wait ${restrictionSeconds}s before booking` 
+            {restrictionType === 'penalty'
+              ? `Penalty: Wait ${restrictionSeconds}s before booking`
               : `Next Slot: Wait ${restrictionSeconds}s before booking`}
           </Text>
         </View>
@@ -909,10 +1231,10 @@ const MachinePage = () => {
           <View style={styles.grid}>
             {bookedMachines.length > 0 ? (
               bookedMachines.map(machine => (
-                <MachineCard 
-                  key={machine.id} 
-                  machine={machine} 
-                  booked 
+                <MachineCard
+                  key={machine.id}
+                  machine={machine}
+                  booked
                   getTimeRemaining={getTimeRemaining}
                   isCurrentUserBooking={machine.bookedBy === currentUser?.email}
                   onUnbook={() => handleUnbookMachine(machine)}
@@ -922,20 +1244,22 @@ const MachinePage = () => {
               <Text style={styles.noMachinesText}>No booked machines</Text>
             )}
           </View>
-          
+
           <Text style={styles.sectionTitle}>Machines under maintenance</Text>
           <View style={styles.grid}>
             {maintenanceMachines.length > 0 ? (
               maintenanceMachines.map(machine => (
-                <MachineCard 
-                  key={machine.id} 
-                  machine={machine} 
+                <MachineCard
+                  key={machine.id}
+                  machine={machine}
                   maintenance
                   disabled
                 />
               ))
             ) : (
-              <Text style={styles.noMachinesText}>No machines under maintenance</Text>
+              <Text style={styles.noMachinesText}>
+                No machines under maintenance
+              </Text>
             )}
           </View>
         </>
@@ -944,24 +1268,24 @@ const MachinePage = () => {
   );
 };
 
-const MachineCard = ({ 
-  machine, 
-  onPress, 
+const MachineCard = ({
+  machine,
+  onPress,
   onUnbook,
-  booked, 
-  maintenance, 
+  booked,
+  maintenance,
   getTimeRemaining,
   isCurrentUserBooking,
-  disabled 
+  disabled,
 }) => {
   const [timeRemaining, setTimeRemaining] = useState(0);
-  
+
   useEffect(() => {
     let timer;
     if (booked && machine.expiryTime) {
       // Set initial time
       setTimeRemaining(getTimeRemaining(machine.expiryTime));
-      
+
       // Update timer every second
       timer = setInterval(() => {
         const remaining = getTimeRemaining(machine.expiryTime);
@@ -971,7 +1295,7 @@ const MachineCard = ({
         }
       }, 1000);
     }
-    
+
     return () => {
       if (timer) clearInterval(timer);
     };
@@ -980,10 +1304,10 @@ const MachineCard = ({
   return (
     <TouchableOpacity
       style={[
-        styles.machineCard, 
+        styles.machineCard,
         booked && styles.bookedMachine,
         maintenance && styles.maintenanceMachine,
-        disabled && !booked && !maintenance && styles.disabledMachine
+        disabled && !booked && !maintenance && styles.disabledMachine,
       ]}
       onPress={onPress}
       disabled={booked || maintenance || disabled} // Disable press if conditions met
@@ -993,36 +1317,33 @@ const MachineCard = ({
         style={styles.machineIcon}
       />
       <Text style={styles.machineText}>No. {machine.number}</Text>
-      
+
       {booked && (
         <View style={styles.bookedInfo}>
           {machine.expiryTime && (
             <Text style={styles.timerText}>
-              {timeRemaining > 0 ? `${timeRemaining}s remaining` : 'Time expired'}
+              {timeRemaining > 0
+                ? `${timeRemaining}s remaining`
+                : 'Time expired'}
             </Text>
           )}
-          <Text style={styles.bookedByText}>
-            In use
-          </Text>
-          
+          <Text style={styles.bookedByText}>In use</Text>
+
           {/* Show unbook button if the current user booked this machine */}
           {isCurrentUserBooking && (
-            <TouchableOpacity 
-              style={styles.unbookButton}
-              onPress={onUnbook}
-            >
+            <TouchableOpacity style={styles.unbookButton} onPress={onUnbook}>
               <Text style={styles.unbookButtonText}>Unbook</Text>
             </TouchableOpacity>
           )}
         </View>
       )}
-      
+
       {maintenance && (
         <View style={styles.maintenanceInfo}>
           <Text style={styles.maintenanceText}>Under Maintenance</Text>
         </View>
       )}
-      
+
       {/* Only show user details on machines that were auto-unbooked */}
       {!booked && !maintenance && machine.autoUnbooked === true && (
         <View style={styles.lastUserInfo}>
@@ -1036,7 +1357,7 @@ const MachineCard = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5', padding: 20 },
+  container: {flex: 1, backgroundColor: '#F5F5F5', padding: 20},
   heading: {
     fontSize: 22,
     fontWeight: 'bold',

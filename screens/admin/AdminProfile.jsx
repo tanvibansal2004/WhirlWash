@@ -178,7 +178,7 @@ const ProfileDetail = ({label, value}) => (
 );
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: 'white', padding: 20},
+  container: {flex: 1, backgroundColor: 'white', padding: 20, paddingTop: 60,},
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

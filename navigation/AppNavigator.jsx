@@ -152,7 +152,7 @@ import LoadingScreen from '../screens/loadingScreen';
 
 import AdminHomePage from '../screens/admin/AdminHomePage';
 import AdminMachinePage from '../screens/admin/AdminMachinePage';
-import AdminBookings from '../screens/admin/AdminBookings';
+import AdminLogsPage from '../screens/admin/AdminLogsPage';
 import AdminUsers from '../screens/admin/AdminUsers';
 import AdminProfile from '../screens/admin/AdminProfile';
 
@@ -291,8 +291,8 @@ const AdminBottomTabNavigator = () => {
             </View>
           ),
         }}
-        name="AdminBookingPage"
-        component={AdminBookings}
+        name="AdminLogsPage"
+        component={AdminLogsPage}
       />
       <Tab.Screen
         options={{

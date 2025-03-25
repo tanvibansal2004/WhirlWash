@@ -42,7 +42,7 @@ const AdminHomePage = () => {
             onPress={() => navigation.navigate('Machines')}>
             <Image source = {require('../../assets/image.png')}
              style = {{width:30, height:30}} />
-            <Text style={{color:'grey', fontSize:20, fontWeight:'semibold', fontWeight:600}}>Book Machine</Text>
+            <Text style={{color:'grey', fontSize:20, fontWeight:'semibold', fontWeight:600}}>View Machines</Text>
         </TouchableOpacity>
 
     </SafeAreaView>
