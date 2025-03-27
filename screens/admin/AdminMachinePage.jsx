@@ -25,6 +25,9 @@ const AdminMachinePage = () => {
   const [newMachineNumber, setNewMachineNumber] = useState('');
   const [underMaintenance, setUnderMaintenance] = useState(false);
 
+  // New state for electricity shortage
+  const [electricityShortage, setElectricityShortage] = useState(false);
+
   // Check if user is admin
   const [isAdmin, setIsAdmin] = useState(false);
   const currentUser = auth().currentUser;
@@ -91,6 +94,90 @@ const AdminMachinePage = () => {
     // Clean up the listener when component unmounts
     return () => unsubscribe();
   }, [isAdmin]);
+
+  // New useEffect to fetch and set initial electricity shortage state
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const fetchElectricityShortageStatus = async () => {
+      try {
+        const statusDoc = await firestore()
+          .collection('systemStatus')
+          .doc('electricityStatus')
+          .get();
+
+        if (statusDoc.exists) {
+          const data = statusDoc.data();
+          setElectricityShortage(data.isShortage || false);
+        }
+      } catch (error) {
+        console.error('Error fetching electricity shortage status:', error);
+      }
+    };
+
+    fetchElectricityShortageStatus();
+  }, [isAdmin]);
+
+  // New useEffect to handle electricity shortage state
+  // useEffect(() => {
+  //   if (!isAdmin) return;
+
+  //   // Update firestore with electricity shortage status
+  //   const updateElectricityShortageStatus = async () => {
+  //     try {
+  //       await firestore().collection('systemStatus').doc('electricityStatus').set({
+  //         isShortage: electricityShortage,
+  //         startTime: electricityShortage ? firestore.FieldValue.serverTimestamp() : null
+  //       }, {merge: true});
+  //     } catch (error) {
+  //       console.error('Error updating electricity shortage status:', error);
+  //       Alert.alert('Error', 'Failed to update electricity shortage status.');
+  //     }
+  //   };
+
+  //   updateElectricityShortageStatus();
+  // }, [electricityShortage, isAdmin]);
+
+  // Update electricity shortage state
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const updateElectricityShortageStatus = async () => {
+      try {
+        const electricityStatusRef = firestore()
+          .collection('systemStatus')
+          .doc('electricityStatus');
+
+        // Get current status to determine how to handle startTime
+        const currentStatus = await electricityStatusRef.get();
+        const currentData = currentStatus.data() || {};
+
+        const updateData = {
+          isShortage: electricityShortage
+        };
+
+        // If turning on, and no existing startTime, set new timestamp
+        if (electricityShortage && !currentData.startTime) {
+          updateData.startTime = firestore.FieldValue.serverTimestamp();
+        } 
+        // If turning off, set startTime to null
+        else if (!electricityShortage) {
+          updateData.startTime = null;
+        }
+        // If already on, preserve existing startTime
+        else if (currentData.startTime) {
+          updateData.startTime = currentData.startTime;
+        }
+
+        await electricityStatusRef.set(updateData, { merge: true });
+      } catch (error) {
+        console.error('Error updating electricity shortage status:', error);
+        Alert.alert('Error', 'Failed to update electricity shortage status.');
+      }
+    };
+
+    updateElectricityShortageStatus();
+  }, [electricityShortage, isAdmin]);
 
   const handleAddMachine = async () => {
     try {
@@ -238,6 +325,40 @@ const AdminMachinePage = () => {
         keyboardShouldPersistTaps="handled">
         <Text style={styles.heading}>LNMIIT Admin Panel</Text>
         <Text style={styles.subheading}>WhirlWash</Text>
+
+        {/* New Electricity Shortage Toggle */}
+        <View style={styles.electricityShortageContainer}>
+          <Text style={styles.electricityShortageLabel}>Electricity Shortage</Text>
+          <Switch
+            value={electricityShortage}
+            onValueChange={(value) => {
+              setElectricityShortage(value);
+              
+              // Optional: Show an alert to confirm
+              if (value) {
+                Alert.alert(
+                  'Electricity Shortage',
+                  'All machine activities will be paused. Are you sure?',
+                  [
+                    {
+                      text: 'Cancel',
+                      onPress: () => setElectricityShortage(false),
+                      style: 'cancel'
+                    },
+                    {
+                      text: 'Confirm',
+                      onPress: () => {
+                        // Any additional confirmation logic can go here
+                      }
+                    }
+                  ]
+                );
+              }
+            }}
+            trackColor={{false: '#767577', true: '#E53935'}}
+            thumbColor={electricityShortage ? '#f4f3f4' : '#f4f3f4'}
+          />
+        </View>
 
         <TouchableOpacity
           style={styles.addButton}
@@ -627,6 +748,19 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
+    fontWeight: 'bold',
+  },
+  electricityShortageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  electricityShortageLabel: {
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
