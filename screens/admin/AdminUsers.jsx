@@ -136,8 +136,8 @@ const AdminUsers = ({ navigation }) => {
       if (machineData.otp === otpInput) {
         // OTP is correct - update machine status
         const newExpiryTime = new Date();
-        newExpiryTime.setMinutes(newExpiryTime.getMinutes() + 60); // Set expiry to 60 minutes
-        
+        newExpiryTime.setSeconds(newExpiryTime.getSeconds() + 60);
+
         await machineRef.update({
           pendingOTPVerification: false,
           inUse: true,
