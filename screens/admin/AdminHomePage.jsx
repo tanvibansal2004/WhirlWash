@@ -15,16 +15,16 @@ const AdminHomePage = () => {
             <Text style = {{fontSize : 24, fontWeight:600,}}>Hello, {admin}!</Text>
             <View style={{flexDirection:'row', gap:10}}>
                 <TouchableOpacity 
-                style={{backgroundColor:'#E2E5F4', width:40, height:40, borderRadius:10, justifyContent:'center', alignItems:'center'}}>
-                    <Icon name="bell" size={24} color="#3D4EB0"/>
+                style={{backgroundColor:'#F8E9EC', width:40, height:40, borderRadius:10, justifyContent:'center', alignItems:'center'}}>
+                    <Icon name="bell" size={24} color="#B03D4E"/>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
                 onPress={()=>{
                     navigation.navigate('Rules')
                 }}
-                style={{backgroundColor:'#E2E5F4', width:40, height:40, borderRadius:10, justifyContent:'center', alignItems:'center'}}>
-                    <Icon1 name="document-text-outline" size={26} color="#3D4EB0" style={{}}/>
+                style={{backgroundColor:'#F8E9EC', width:40, height:40, borderRadius:10, justifyContent:'center', alignItems:'center'}}>
+                    <Icon1 name="document-text-outline" size={26} color="#B03D4E" style={{}}/>
                 </TouchableOpacity>
             </View>
         </View>
@@ -40,7 +40,7 @@ const AdminHomePage = () => {
 
         <TouchableOpacity style={{backgroundColor:'#F5F5F5',height:'8%', width:'85%', marginTop:20, borderRadius:10, marginLeft:30, borderWidth:2, borderColor:'black', justifyContent:'center', alignItems:'center', flexDirection:'row', gap:10}}
             onPress={() => navigation.navigate('Machines')}>
-            <Image source = {require('../../assets/image.png')}
+            <Image source = {require('../../assets/redMachine.png')}
              style = {{width:30, height:30}} />
             <Text style={{color:'grey', fontSize:20, fontWeight:'semibold', fontWeight:600}}>View Machines</Text>
         </TouchableOpacity>
