@@ -8,6 +8,9 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  ScrollView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
@@ -96,76 +99,119 @@ const AdminProfile = ({route, navigation}) => {
 
   const handleLogout = async () => {
     try {
-        const currentUser = auth.currentUser;
+      const currentUser = auth.currentUser;
 
-        if (!currentUser) {
-            console.warn("No admin currently signed in.");
-            Alert.alert("Logout", "No admin is currently signed in.");
-            return;
-        }
+      if (!currentUser) {
+        console.warn('No admin currently signed in.');
+        Alert.alert('Logout', 'No admin is currently signed in.');
+        return;
+      }
 
-        await auth.signOut(); // Firebase Auth Logout
-        await GoogleSignin.signOut(); // Google Sign-In Logout
+      await auth.signOut(); // Firebase Auth Logout
+      await GoogleSignin.signOut(); // Google Sign-In Logout
 
-        // Reset navigation stack to prevent going back after logout
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Welcome' }],
-        });
-
+      // Reset navigation stack to prevent going back after logout
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Welcome'}],
+      });
     } catch (error) {
-        console.error("Logout error:", error);
-        Alert.alert("Error", "Failed to log out");
+      console.error('Logout error:', error);
+      Alert.alert('Error', 'Failed to log out');
+    }
+  };
+
+  const navigateToAdminHome = () => {
+    // First try to reset to AdminMain
+    try {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'AdminMain' }],
+      });
+    } catch (error) {
+      // If that fails, try other methods
+      console.log('Navigation reset error:', error);
+      try {
+        navigation.navigate('AdminMain');
+      } catch (error) {
+        console.log('Navigation navigate error:', error);
+        // Last resort - go back
+        navigation.goBack();
+      }
     }
   };
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#B03D4E" />
-        <Text style={styles.loadingText}>Loading admin profile...</Text>
-      </View>
+      <SafeAreaView style={styles.safeAreaContainer}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#B03D4E" />
+          <Text style={styles.loadingText}>Loading admin profile...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (!userData) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.errorText}>Admin data not found</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchUserEmail}>
-          <Text style={styles.retryText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.safeAreaContainer}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.errorText}>Admin data not found</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchUserEmail}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.heading}>Admin Profile</Text>
+    <SafeAreaView style={styles.safeAreaContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={true}>
+        <TouchableOpacity
+          style={styles.backButtonContainer}
+          activeOpacity={0.7}
+          onPress={navigateToAdminHome}>
+          <View style={styles.buttonBackground}>
+            <Icon
+              name="chevron-back"
+              size={30}
+              color="black"
+              style={{position: 'absolute', left: 20}}
+            />
+          </View>
+        </TouchableOpacity>
 
-      <Image source={require('../../assets/user.png')} style={styles.img} />
-      <Text style={styles.name}>{userData.name}</Text>
+        <Text style={styles.heading}>Admin Profile</Text>
 
-      <View style={styles.detailsContainer}>
-        <ProfileDetail label="Email" value={userData.email} />
-        <ProfileDetail label="Role" value={userData.role} />
-        {userData.department && (
-          <ProfileDetail label="Department" value={userData.department} />
-        )}
-        {userData.contactNo && (
-          <ProfileDetail label="Contact No." value={userData.contactNo} />
-        )}
-      </View>
+        <Image source={require('../../assets/user.png')} style={styles.img} />
+        <Text style={styles.name}>{userData.name}</Text>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Icon name="log-out-outline" size={20} color="#B03D4E" />
-        <Text style={styles.logoutText}>Log Out</Text>
-      </TouchableOpacity>
+        <View style={styles.detailsContainer}>
+          <ProfileDetail label="Email" value={userData.email} />
+          <ProfileDetail label="Role" value={userData.role} />
+          {userData.department && (
+            <ProfileDetail label="Department" value={userData.department} />
+          )}
+          {userData.contactNo && (
+            <ProfileDetail label="Contact No." value={userData.contactNo} />
+          )}
+        </View>
 
-      <Text style={styles.note}>
-        *For any system issues or updates to your profile, please contact the IT department.
-      </Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Icon name="log-out-outline" size={20} color="#B03D4E" />
+          <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.note}>
+          *For any system issues or updates to your profile, please contact the
+          IT department.
+        </Text>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -178,12 +224,40 @@ const ProfileDetail = ({label, value}) => (
 );
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: 'white', padding: 20, paddingTop: 60,},
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  scrollViewContent: {
+    padding: 20,
+    paddingBottom: 50, // Extra bottom padding for scrolling
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  backButtonContainer: {
+    marginLeft: -10,
+    width: 60,
+    height: 40,
+    justifyContent: 'center',
+  },
+  buttonBackground: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+    padding: 20,
   },
   loadingText: {marginTop: 10, fontSize: 16, color: '#666'},
   errorText: {fontSize: 18, color: '#ff3b30', marginBottom: 20},

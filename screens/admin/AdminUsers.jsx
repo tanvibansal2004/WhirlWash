@@ -6,7 +6,10 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Alert,
-  Text
+  Text,
+  Platform,
+  StatusBar,
+  ScrollView
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
@@ -14,7 +17,7 @@ import auth from '@react-native-firebase/auth';
 import MachineVerificationItem from '../../components/admin/MachineVerificationItem';
 import VerificationForm from '../../components/admin/VerificationForm';
 import EmptyState from '../../components/admin/EmptyState';
-import Header from '../../components/admin/Header';
+import { PageHeader } from '../../components/common';
 
 // Hooks
 import useOTPVerification from '../../hooks/useOTPVerification';
@@ -46,54 +49,66 @@ const AdminUsers = ({ navigation }) => {
     resetVerificationForm
   } = useOTPVerification();
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <Header 
-        title="Admin OTP Verification" 
-        subtitle={`${pendingOTPMachines.length} pending verification(s)`}
-      />
-
-      {loading ? (
+  // Render content based on loading state
+  const renderContent = () => {
+    if (loading) {
+      return (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#3D4EB0" />
           <Text style={styles.loadingText}>Loading pending verifications...</Text>
         </View>
-      ) : (
-        <View style={styles.container}>
-          {pendingOTPMachines.length > 0 ? (
-            <FlatList
-              data={pendingOTPMachines}
-              renderItem={({ item }) => (
-                <MachineVerificationItem
-                  machine={item}
-                  isSelected={selectedMachine && selectedMachine.id === item.id}
-                  onSelect={(machine) => {
-                    setSelectedMachine(machine);
-                    setOtpInput(''); // Clear OTP input when selecting a new machine
-                  }}
-                  onCancel={cancelOTPVerification}
-                />
-              )}
-              keyExtractor={item => item.id}
-              contentContainerStyle={styles.listContainer}
-              ListFooterComponent={
-                selectedMachine && (
-                  <VerificationForm
-                    machine={selectedMachine}
-                    otpInput={otpInput}
-                    setOtpInput={setOtpInput}
-                    onVerify={verifyOTP}
-                    onCancel={resetVerificationForm}
-                    verifying={verifying}
-                  />
-                )
-              }
+      );
+    }
+
+    if (pendingOTPMachines.length === 0) {
+      return <EmptyState message="No pending OTP verifications" />;
+    }
+
+    return (
+      <FlatList
+        data={pendingOTPMachines}
+        renderItem={({ item }) => (
+          <MachineVerificationItem
+            machine={item}
+            isSelected={selectedMachine && selectedMachine.id === item.id}
+            onSelect={(machine) => {
+              setSelectedMachine(machine);
+              setOtpInput(''); // Clear OTP input when selecting a new machine
+            }}
+            onCancel={cancelOTPVerification}
+          />
+        )}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={true}
+        ListFooterComponent={
+          selectedMachine && (
+            <VerificationForm
+              machine={selectedMachine}
+              otpInput={otpInput}
+              setOtpInput={setOtpInput}
+              onVerify={verifyOTP}
+              onCancel={resetVerificationForm}
+              verifying={verifying}
             />
-          ) : (
-            <EmptyState message="No pending OTP verifications" />
-          )}
-        </View>
-      )}
+          )
+        }
+      />
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
+      <View style={styles.headerContainer}>
+        <PageHeader 
+          title="Admin OTP Verification" 
+          subtitle={`${pendingOTPMachines.length} pending verification(s)`}
+        />
+      </View>
+      <View style={styles.container}>
+        {renderContent()}
+      </View>
     </SafeAreaView>
   );
 };
@@ -101,17 +116,25 @@ const AdminUsers = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#3D4EB0',
+    backgroundColor: '#F5F5F5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  headerContainer: {
+    paddingHorizontal: 15,
+    // paddingTop: 10,
+    paddingBottom: 5,
+    backgroundColor: '#F5F5F5',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FB',
+    backgroundColor: '#F5F5F5',
   },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F7FB',
+    backgroundColor: '#F5F5F5',
+    minHeight: 300,
   },
   loadingText: {
     marginTop: 10,
@@ -120,7 +143,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 15,
-    paddingBottom: 30,
+    paddingBottom: 120, // Extra padding at the bottom for better scrolling
   },
 });
 

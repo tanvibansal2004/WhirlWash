@@ -6,11 +6,13 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from 'react-native';
 
 // Components
 import MachineCard from '../../components/admin/MachineCard';
-import ElectricityShortageControl from '../../components/admin/ElectricityShortageControl';
+// import ElectricityShortageControl from '../../components/admin/ElectricityShortageControl';
 import AddMachineButton from '../../components/admin/AddMachineButton';
 import AddMachineModal from '../../components/admin/AddMachineModal';
 import EditMachineModal from '../../components/admin/EditMachineModal';
@@ -53,22 +55,28 @@ const AdminMachinePage = () => {
 
   // If not admin, show restricted access
   if (!isAdmin && !adminLoading) {
-    return <AccessRestricted />;
+    return (
+      <SafeAreaView style={styles.container}>
+        <AccessRestricted />
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={true}
         keyboardShouldPersistTaps="handled">
         
         <PageHeader title="LNMIIT Admin Panel" subtitle="WhirlWash" />
 
-        <ElectricityShortageControl 
+        {/* <ElectricityShortageControl 
           isActive={electricityShortage} 
           onToggle={updateElectricityShortage} 
-        />
+        /> */}
 
         <AddMachineButton onPress={() => setModalVisible(true)} />
 
@@ -122,9 +130,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   scrollView: {
-    paddingTop: 60,
+    flex: 1,
     paddingHorizontal: 20,
   },
   scrollViewContent: {
@@ -134,10 +143,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loaderContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    minHeight: 200,
   },
   noMachinesText: {
     textAlign: 'center',

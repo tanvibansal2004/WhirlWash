@@ -5,11 +5,11 @@ import {
   View,
 } from 'react-native';
 
-const SectionHeader = ({ title, subtitle, marginTop = 0 }) => {
+const SectionHeader = ({ title, subtitle, subtitleColor='#3D4EB0', marginTop = 0 }) => {
   return (
     <View style={{ marginTop }}>
       <Text style={styles.heading}>{title}</Text>
-      <Text style={styles.subheading}>{subtitle}</Text>
+      <Text style={[styles.subheading, {color: subtitleColor}]}>{subtitle}</Text>
     </View>
   );
 };

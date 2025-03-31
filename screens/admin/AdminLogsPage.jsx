@@ -6,6 +6,8 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from 'react-native';
 
 // Components
@@ -80,14 +82,20 @@ const AdminLogsPage = () => {
 
   // Render access restricted view if not admin
   if (!permissionLoading && !isAdmin) {
-    return <AccessRestricted />;
+    return (
+      <SafeAreaView style={styles.container}>
+        <AccessRestricted />
+      </SafeAreaView>
+    );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={true}
         keyboardShouldPersistTaps="handled">
         
         <PageHeader 
@@ -119,22 +127,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   scrollView: {
-    paddingTop: 60,
+    flex: 1,
     paddingHorizontal: 20,
   },
   scrollViewContent: {
+    paddingTop: 20,
     paddingBottom: 140, // Ensure content can scroll beyond bottom tabs
   },
   logsContainer: {
     flex: 1,
   },
   loaderContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    minHeight: 200,
   },
   noLogsText: {
     textAlign: 'center',

@@ -1,6 +1,6 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Platform, StatusBar } from 'react-native'
 import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+// import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/Fontisto'
 import Icon1 from 'react-native-vector-icons/Ionicons'
 import { useNavigation } from '@react-navigation/native'
@@ -10,7 +10,7 @@ const HomePage = () => {
     const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={{backgroundColor:'white', width:'100%', height:'100%'}}>
+    <SafeAreaView style={{backgroundColor:'white', width:'100%', height:'100%', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0}}>
         <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', padding:20}}>
             <Text style = {{fontSize : 24, fontWeight:600,}}>Hello, {user}!</Text>
             <View style={{flexDirection:'row', gap:10}}>
@@ -34,8 +34,8 @@ const HomePage = () => {
         />
 
         <View style={{backgroundColor:'#F5F5F5', height:'30%', width:'85%', borderRadius:5, marginTop:30, marginLeft:30, padding:10}}>
-            <Text style={{fontSize:30, fontWeight:400}}>Heading</Text>
-            <Text style={{fontSize:16, lineHeight:22, marginTop:5}}>"Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nisi officiis incidunt autem corrupti explicabo deserunt numquam tempora soluta, quibusdam molestias iste quos perferendis ab sapiente beatae doloribus nobis reprehenderit voluptas! Consequuntur totam veniam aspernatur quibusdam repellat voluptate laborum! Porro, possimus!"</Text>
+            <Text style={{fontSize:25, fontWeight:400, color: '#3D4EB0' , marginBottom: 15}}>Welcome to WhirlWash!</Text>
+            <Text style={{fontSize:16, lineHeight:22, marginTop:5}}>"Laundry made simple. Book machines instantly, verify with OTP, and track your wash cycle—all from your phone. No waiting, no paperwork, just clean clothes effortlessly. Get real-time updates and notifications, so you’re always in control of your laundry."</Text>
         </View>
 
         <TouchableOpacity style={{backgroundColor:'#F5F5F5',height:'8%', width:'85%', marginTop:20, borderRadius:10, marginLeft:30, borderWidth:2, borderColor:'black', justifyContent:'center', alignItems:'center', flexDirection:'row', gap:10}}

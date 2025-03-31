@@ -3,6 +3,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 
 const LoadingScreen = () => {
@@ -17,7 +18,7 @@ const LoadingScreen = () => {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Video
         source={require('../assets/loading.mp4')}  // Path to your loading.mp4 video
         style={styles.video}
@@ -25,7 +26,7 @@ const LoadingScreen = () => {
         resizeMode="cover"  // Adjust video size to cover the screen
         muted={true}  // Mute the video
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
