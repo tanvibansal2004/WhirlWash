@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
@@ -21,8 +21,14 @@ import userService from '../services/userService';
 // Utils
 import { getTimeRemaining, hasTimeExpired } from '../utils/timeUtils';
 
+// Keep track of which machines we're handling in expiry checks
+const checkingMachines = {};
+
 const MachinePage = () => {
   const currentUser = auth().currentUser;
+  
+  // Local loading state to override the hook's loading state
+  const [isLoading, setIsLoading] = useState(false);
   
   // Get machine data using custom hook
   const { 
@@ -30,7 +36,7 @@ const MachinePage = () => {
     bookedMachines,
     pendingOTPMachines,
     maintenanceMachines, 
-    loading,
+    loading: hookLoading,
     userHasBooking,
     userHasPendingOTP,
     refreshMachines
@@ -47,6 +53,20 @@ const MachinePage = () => {
   // Get electricity status using custom hook
   const { electricityShortage, electricityShortageStartTime } = useElectricityStatus();
 
+  // Custom refresh function with timeout
+  const safeRefreshMachines = () => {
+    // Set our local loading state
+    setIsLoading(true);
+    
+    // Call the hook's refresh function
+    refreshMachines();
+    
+    // Reset loading after 2 seconds, regardless of what happens
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  };
+
   // Check and handle auto-unbooking for machines
   useEffect(() => {
     const checkMachinesExpiry = async () => {
@@ -57,25 +77,46 @@ const MachinePage = () => {
         if (
           machine.expiryTime && 
           hasTimeExpired(machine.expiryTime) && 
-          machine.bookedBy
+          machine.bookedBy &&
+          !checkingMachines[machine.id]  // Prevent multiple simultaneous checks
         ) {
           try {
-            console.log(`Auto-unbooking machine ${machine.id} for user ${machine.bookedBy}`);
-            await machineService.autoUnbookMachine(machine.id, machine.bookedBy);
-            // refreshMachines(); yaad rakhna
+            // Mark as being checked
+            checkingMachines[machine.id] = true;
+            
+            console.log(`Checking expiry for machine ${machine.id}`);
+            const result = await machineService.autoUnbookMachine(machine.id, machine.bookedBy);
+            
+            // Only refresh if an actual change was made
+            if (result === true) {
+              safeRefreshMachines();
+            }
+            
+            // Remove from checking after a delay
+            setTimeout(() => {
+              delete checkingMachines[machine.id];
+            }, 3000);
           } catch (error) {
-            console.error('Error auto-unbooking machine:', error);
+            console.error('Error in expiry check:', error);
+            delete checkingMachines[machine.id];
           }
         }
       }
     };
 
-    // Check expiry immediately and set up interval
+    // Run the check once on mount
     checkMachinesExpiry();
-    const intervalId = setInterval(checkMachinesExpiry, 1000); // Check every 15 seconds
-
-    return () => clearInterval(intervalId);
-  }, [bookedMachines, refreshMachines]);
+    
+    // Set up interval with proper cleanup
+    const intervalId = setInterval(checkMachinesExpiry, 1000); // Check every 10 seconds
+    return () => {
+      clearInterval(intervalId);
+      // Clear all checking flags on unmount
+      for (const key in checkingMachines) {
+        delete checkingMachines[key];
+      }
+    };
+  }, [bookedMachines]);
 
   // Check and handle auto-release for OTP verification
   useEffect(() => {
@@ -87,25 +128,52 @@ const MachinePage = () => {
         if (
           machine.otpVerifyExpiryTime && 
           hasTimeExpired(machine.otpVerifyExpiryTime) && 
-          machine.bookedBy
+          machine.bookedBy &&
+          !checkingMachines[machine.id]  // Prevent multiple simultaneous checks
         ) {
           try {
-            console.log(`Auto-releasing machine ${machine.id} for user ${machine.bookedBy} due to OTP expiry`);
-            await machineService.autoReleaseIfOTPNotVerified(machine.id, machine.bookedBy);
-            // refreshMachines();
+            // Mark as being checked
+            checkingMachines[machine.id] = true;
+            
+            console.log(`Checking OTP expiry for machine ${machine.id}`);
+            const result = await machineService.autoReleaseIfOTPNotVerified(machine.id, machine.bookedBy);
+            
+            // Only refresh if an actual change was made
+            if (result === true) {
+              safeRefreshMachines();
+            }
+            
+            // Remove from checking after a delay
+            setTimeout(() => {
+              delete checkingMachines[machine.id];
+            }, 3000);
           } catch (error) {
-            console.error('Error auto-releasing machine:', error);
+            console.error('Error in OTP expiry check:', error);
+            delete checkingMachines[machine.id];
           }
         }
       }
     };
 
-    // Check OTP expiry immediately and set up interval
+    // Run the check once
     checkOTPExpiry();
-    const intervalId = setInterval(checkOTPExpiry, 5000); // Check every 5 seconds
+    
+    // Set up interval with proper cleanup
+    const intervalId = setInterval(checkOTPExpiry, 10000); // Check every 10 seconds
+    return () => {
+      clearInterval(intervalId);
+      // Clear all checking flags on unmount
+      for (const key in checkingMachines) {
+        delete checkingMachines[key];
+      }
+    };
+  }, [pendingOTPMachines]);
 
-    return () => clearInterval(intervalId);
-  }, [pendingOTPMachines, refreshMachines]);
+  // Force a refresh on component mount
+  useEffect(() => {
+    // Initial refresh when component mounts
+    safeRefreshMachines();
+  }, []);
 
   const handleBookMachine = async (machine) => {
     if (electricityShortage) {
@@ -153,7 +221,7 @@ const MachinePage = () => {
         `Machine No. ${machine.number} reserved! Please bring your laundry and verify OTP ${result.otp} with admin. You have 60 seconds.`
       );
       
-      refreshMachines();
+      safeRefreshMachines();
       
     } catch (error) {
       console.error('Error booking machine:', error);
@@ -181,12 +249,17 @@ const MachinePage = () => {
         return;
       }
 
-      await machineService.unbookMachine(machine.id, currentUser.email);
+      const result = await machineService.unbookMachine(machine.id, currentUser.email);
+      
       Alert.alert(
         'Machine Unbooked',
         'You have successfully unbooked the machine. You can book another machine after 30 seconds.'
       );
-      // refreshMachines(); yaad rakhna
+      
+      // Only refresh if actual change was made
+      if (result === true) {
+        safeRefreshMachines();
+      }
       
     } catch (error) {
       console.error('Error unbooking machine:', error);
@@ -196,6 +269,10 @@ const MachinePage = () => {
 
   const isUserRestricted = restrictionType !== null && restrictionSeconds > 0;
 
+  // Determine if we should show loading based on local state or hook state
+  const showLoading = isLoading || (hookLoading && !isLoading);
+
+  // This is the actual render part
   return (
     <ScrollView style={styles.container}>
       <PageHeader
@@ -207,7 +284,7 @@ const MachinePage = () => {
       <ElectricityShortageAlert isActive={electricityShortage} />
       <RestrictionAlert type={restrictionType} seconds={restrictionSeconds} />
 
-      {loading ? (
+      {showLoading ? (
         <LoadingIndicator />
       ) : (
         <>

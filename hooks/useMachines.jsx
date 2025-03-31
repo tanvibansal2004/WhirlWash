@@ -98,10 +98,7 @@ const useMachines = () => {
   const currentUser = auth().currentUser;
 
   // Function to refresh machines data
-  const refreshMachines = () => {
-    setLoading(true);
-    // The listener will automatically update the data
-  };
+  const refreshMachines = () => {};
 
   useEffect(() => {
     // Set up real-time listener for machine collection

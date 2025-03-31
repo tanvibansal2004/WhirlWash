@@ -2,17 +2,13 @@ import firestore from '@react-native-firebase/firestore';
 import userService from './userService';
 import { createExpiryTime, createOTPVerifyExpiryTime } from '../utils/timeUtils';
 
+// Simple flag to track which machines have already been auto-unbooked
+const alreadyAutoUnbooked = {};
+
 /**
  * Service to handle machine-related operations
  */
 const machineService = {
-  /**
-   * Book a machine for a user with OTP verification
-   * @param {string} machineId - ID of the machine to book
-   * @param {string} userEmail - Email of the user booking the machine
-   * @returns {Promise<Object>} Booking result with OTP
-   */
-
   bookMachine: async (machineId, userEmail) => {
     try {
       // Get user details
@@ -28,6 +24,8 @@ const machineService = {
       const otpVerifyExpiryTime = createOTPVerifyExpiryTime();
       
       const machineRef = firestore().collection('machines').doc(machineId);
+      const machineDoc = await machineRef.get();
+      const machineData = machineDoc.data();
   
       await machineRef.update({
         pendingOTPVerification: true,
@@ -42,14 +40,11 @@ const machineService = {
         otp: otp
       });
   
-      // Set a timer to auto-release if OTP not verified
-      setTimeout(() => {
-        machineService.autoReleaseIfOTPNotVerified(machineId, userEmail);
-      }, 60000); // 60 seconds
+      // We won't set a timer here as we now have a useEffect in the component to check
   
       return {
         success: true,
-        machineNumber: machineRef.number,
+        machineNumber: machineData.number,
         otp: otp
       };
     } catch (error) {
@@ -58,95 +53,86 @@ const machineService = {
     }
   },
 
-  /**
- * Verify OTP and start machine for a user
- * @param {string} machineId - ID of the machine
- * @param {string} userEmail - Email of the user
- * @param {string} otp - The OTP to verify
- * @returns {Promise<boolean>} Success status
- */
-
-verifyOTPAndStartMachine: async (machineId, userEmail, otp) => {
-  try {
-    const machineDoc = await firestore()
-      .collection('machines')
-      .doc(machineId)
-      .get();
-    
-    if (!machineDoc.exists) {
-      throw new Error('Machine not found');
-    }
-    
-    const machineData = machineDoc.data();
-    
-    // Check if OTP matches and machine is in pending OTP state
-    if (
-      machineData.pendingOTPVerification !== true || 
-      machineData.bookedBy !== userEmail ||
-      machineData.otp !== otp
-    ) {
-      return false;
-    }
-    
-    // Get user details
-    const userDetails = await userService.getUserDetails(userEmail);
-    
-    // Prepare updated lastUses array (last 3 users)
-    const updatedLastUses = machineData.lastUses || [];
-    const newUserEntry = {
-      email: userEmail,
-      name: machineData.userName || '',
-      mobile: machineData.userMobile || '',
-      timestamp: new Date().toISOString(),
-    };
-
-    // Only add new user if not already the most recent user
-    if (
-      !updatedLastUses.length ||
-      updatedLastUses[0].email !== userEmail
-    ) {
-      // Shift existing entries down
-      if (updatedLastUses.length >= 3) {
-        updatedLastUses.pop(); // Remove the oldest entry
+  verifyOTPAndStartMachine: async (machineId, userEmail, otp) => {
+    try {
+      const machineDoc = await firestore()
+        .collection('machines')
+        .doc(machineId)
+        .get();
+      
+      if (!machineDoc.exists) {
+        throw new Error('Machine not found');
       }
-      updatedLastUses.unshift(newUserEntry);
-    }
-    
-    // Calculate expiry time (from your timeUtils)
-    const expiryTime = createExpiryTime();
-    
-    // Update machine status
-    await firestore().collection('machines').doc(machineId).update({
-      pendingOTPVerification: false,
-      inUse: true,
-      status: 'in-use',
-      otpVerifyExpiryTime: null,
-      expiryTime: expiryTime,
-      otp: null,
-      lastUses: updatedLastUses  // Add this line to update the lastUses array
-    });
-    
-    return true;
-  } catch (error) {
-    console.error('Error verifying OTP:', error);
-    throw error;
-  }
-},
+      
+      const machineData = machineDoc.data();
+      
+      // Check if OTP matches and machine is in pending OTP state
+      if (
+        machineData.pendingOTPVerification !== true || 
+        machineData.bookedBy !== userEmail ||
+        machineData.otp !== otp
+      ) {
+        return false;
+      }
+      
+      // Get user details
+      const userDetails = await userService.getUserDetails(userEmail);
+      
+      // Prepare updated lastUses array (last 3 users)
+      const updatedLastUses = machineData.lastUses || [];
+      const newUserEntry = {
+        email: userEmail,
+        name: machineData.userName || '',
+        mobile: machineData.userMobile || '',
+        timestamp: new Date().toISOString(),
+      };
 
-  /**
-   * Automatically release machine if OTP not verified in time
-   * @param {string} machineId - ID of the machine to auto-release
-   * @param {string} userEmail - Email of the user who booked the machine
-   * @returns {Promise<void>}
-   */
+      // Only add new user if not already the most recent user
+      if (
+        !updatedLastUses.length ||
+        updatedLastUses[0].email !== userEmail
+      ) {
+        // Shift existing entries down
+        if (updatedLastUses.length >= 3) {
+          updatedLastUses.pop(); // Remove the oldest entry
+        }
+        updatedLastUses.unshift(newUserEntry);
+      }
+      
+      // Calculate expiry time (from your timeUtils)
+      const expiryTime = createExpiryTime();
+      
+      // Update machine status
+      await firestore().collection('machines').doc(machineId).update({
+        pendingOTPVerification: false,
+        inUse: true,
+        status: 'in-use',
+        otpVerifyExpiryTime: null,
+        expiryTime: expiryTime,
+        otp: null,
+        lastUses: updatedLastUses // Add this line to update the lastUses array
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      throw error;
+    }
+  },
+
   autoReleaseIfOTPNotVerified: async (machineId, userEmail) => {
     try {
       // Check if the machine is still in pendingOTPVerification state
       const machineDoc = await firestore().collection('machines').doc(machineId).get();
+      
+      if (!machineDoc.exists) {
+        return null; // Return null to signal no operation was performed
+      }
+      
       const machineData = machineDoc.data();
       
       if (!machineData || machineData.pendingOTPVerification !== true || machineData.bookedBy !== userEmail) {
-        return; // Machine is not in pending OTP state or not booked by this user
+        return null; // Return null to signal no operation was performed
       }
 
       // Reset machine to available
@@ -157,21 +143,17 @@ verifyOTPAndStartMachine: async (machineId, userEmail, otp) => {
         otpVerifyExpiryTime: null,
         userName: '',
         userMobile: '',
-        otp: null
+        otp: null,
       });
 
       console.log(`Machine ${machineId} auto-released due to OTP verification timeout`);
+      return true; // Return true to signal success
     } catch (error) {
       console.error('Error auto-releasing machine:', error);
+      return false; // Return false to signal error
     }
   },
 
-  /**
-   * Unbook a machine
-   * @param {string} machineId - ID of the machine to unbook
-   * @param {string} userEmail - Email of the user unbooking the machine
-   * @returns {Promise<void>}
-   */
   unbookMachine: async (machineId, userEmail) => {
     try {
       // Apply cooldown to user
@@ -180,6 +162,11 @@ verifyOTPAndStartMachine: async (machineId, userEmail, otp) => {
       // Update machine status
       const machineRef = firestore().collection('machines').doc(machineId);
       const machineDoc = await machineRef.get();
+      
+      if (!machineDoc.exists) {
+        throw new Error('Machine not found');
+      }
+      
       const machineData = machineDoc.data();
 
       // Prepare updated lastUses array
@@ -215,33 +202,65 @@ verifyOTPAndStartMachine: async (machineId, userEmail, otp) => {
         lastUses: updatedLastUses,
         expiryTime: null,
       });
+      
+      return true; // Return true to signal success
     } catch (error) {
       console.error('Error unbooking machine:', error);
       throw error;
     }
   },
 
-  /**
-   * Automatically unbook a machine after time expires
-   * @param {string} machineId - ID of the machine to auto-unbook
-   * @param {string} userEmail - Email of the user who booked the machine
-   * @returns {Promise<void>}
-   */
   autoUnbookMachine: async (machineId, userEmail) => {
+    // CRITICAL FIX: Check if this machine has already been auto-unbooked
+    if (alreadyAutoUnbooked[machineId]) {
+      console.log(`Machine ${machineId} has already been auto-unbooked, skipping additional alerts`);
+      return null; // Return null to signal no operation was performed
+    }
+    
     try {
+      // Mark as already auto-unbooked to prevent multiple alerts
+      alreadyAutoUnbooked[machineId] = true;
+      
+      // Check if the machine is actually in use and booked by this user
       const machineDoc = await firestore()
         .collection('machines')
         .doc(machineId)
         .get();
+        
+      if (!machineDoc.exists) {
+        delete alreadyAutoUnbooked[machineId];
+        return null; // Return null to signal no operation was performed
+      }
+      
       const machineData = machineDoc.data();
 
       // Only proceed if machine is still booked by the same user
-      if (!machineData || machineData.bookedBy !== userEmail) {
-        return;
+      if (!machineData || machineData.bookedBy !== userEmail || machineData.status !== 'in-use') {
+        delete alreadyAutoUnbooked[machineId];
+        return null; // Return null to signal no operation was performed
       }
 
       // Apply penalty to user
       await userService.applyPenalty(userEmail);
+
+      // Prepare updated lastUses array if needed
+      const updatedLastUses = machineData.lastUses || [];
+      
+      // If the user is not the most recent in lastUses, add them
+      if (!updatedLastUses.length || updatedLastUses[0].email !== userEmail) {
+        const newUserEntry = {
+          email: userEmail,
+          name: machineData.userName || 'Unknown User',
+          mobile: machineData.userMobile || '',
+          timestamp: new Date().toISOString(),
+        };
+        
+        if (updatedLastUses.length >= 3) {
+          updatedLastUses.pop();
+        }
+        
+        updatedLastUses.unshift(newUserEntry);
+      }
 
       // Update machine status
       await firestore().collection('machines').doc(machineId).update({
@@ -250,22 +269,28 @@ verifyOTPAndStartMachine: async (machineId, userEmail, otp) => {
         status: 'available',
         lastUsedBy: userEmail,
         lastUserName: machineData.userName || 'Unknown User',
-        lastUserMobile: machineData.userMobile,
+        lastUserMobile: machineData.userMobile || '',
         lastUsedTime: new Date().toISOString(),
         autoUnbooked: true,
+        lastUses: updatedLastUses,
+        expiryTime: null,
       });
 
       console.log(`Machine ${machineId} auto-unbooked. Last user: ${machineData.userName || 'Unknown User'}`);
+      
+      // After 1 minute, clear the auto-unbooked flag to allow future operations on this machine
+      setTimeout(() => {
+        delete alreadyAutoUnbooked[machineId];
+      }, 60000);  // 1 minute
+      
+      return true; // Return true to signal success
     } catch (error) {
       console.error('Error auto-unbooking machine:', error);
+      delete alreadyAutoUnbooked[machineId];
+      return false; // Return false to signal error
     }
   },
 
-  /**
-   * Get machine details
-   * @param {string} machineId - ID of the machine
-   * @returns {Promise<Object>} Machine details
-   */
   getMachineDetails: async (machineId) => {
     try {
       const machineDoc = await firestore()
