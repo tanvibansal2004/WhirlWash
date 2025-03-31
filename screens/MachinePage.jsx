@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
@@ -19,7 +19,7 @@ import machineService from '../services/machineService';
 import userService from '../services/userService';
 
 // Utils
-import { getTimeRemaining } from '../utils/timeUtils';
+import { getTimeRemaining, hasTimeExpired } from '../utils/timeUtils';
 
 const MachinePage = () => {
   const currentUser = auth().currentUser;
@@ -46,6 +46,66 @@ const MachinePage = () => {
   
   // Get electricity status using custom hook
   const { electricityShortage, electricityShortageStartTime } = useElectricityStatus();
+
+  // Check and handle auto-unbooking for machines
+  useEffect(() => {
+    const checkMachinesExpiry = async () => {
+      if (!bookedMachines || bookedMachines.length === 0) return;
+
+      // Check each booked machine
+      for (const machine of bookedMachines) {
+        if (
+          machine.expiryTime && 
+          hasTimeExpired(machine.expiryTime) && 
+          machine.bookedBy
+        ) {
+          try {
+            console.log(`Auto-unbooking machine ${machine.id} for user ${machine.bookedBy}`);
+            await machineService.autoUnbookMachine(machine.id, machine.bookedBy);
+            // refreshMachines(); yaad rakhna
+          } catch (error) {
+            console.error('Error auto-unbooking machine:', error);
+          }
+        }
+      }
+    };
+
+    // Check expiry immediately and set up interval
+    checkMachinesExpiry();
+    const intervalId = setInterval(checkMachinesExpiry, 1000); // Check every 15 seconds
+
+    return () => clearInterval(intervalId);
+  }, [bookedMachines, refreshMachines]);
+
+  // Check and handle auto-release for OTP verification
+  useEffect(() => {
+    const checkOTPExpiry = async () => {
+      if (!pendingOTPMachines || pendingOTPMachines.length === 0) return;
+
+      // Check each machine with pending OTP
+      for (const machine of pendingOTPMachines) {
+        if (
+          machine.otpVerifyExpiryTime && 
+          hasTimeExpired(machine.otpVerifyExpiryTime) && 
+          machine.bookedBy
+        ) {
+          try {
+            console.log(`Auto-releasing machine ${machine.id} for user ${machine.bookedBy} due to OTP expiry`);
+            await machineService.autoReleaseIfOTPNotVerified(machine.id, machine.bookedBy);
+            // refreshMachines();
+          } catch (error) {
+            console.error('Error auto-releasing machine:', error);
+          }
+        }
+      }
+    };
+
+    // Check OTP expiry immediately and set up interval
+    checkOTPExpiry();
+    const intervalId = setInterval(checkOTPExpiry, 5000); // Check every 5 seconds
+
+    return () => clearInterval(intervalId);
+  }, [pendingOTPMachines, refreshMachines]);
 
   const handleBookMachine = async (machine) => {
     if (electricityShortage) {
@@ -126,7 +186,7 @@ const MachinePage = () => {
         'Machine Unbooked',
         'You have successfully unbooked the machine. You can book another machine after 30 seconds.'
       );
-      refreshMachines();
+      // refreshMachines(); yaad rakhna
       
     } catch (error) {
       console.error('Error unbooking machine:', error);
@@ -138,8 +198,8 @@ const MachinePage = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <PageHeader 
-        title="LNMIIT, Jaipur" 
+      <PageHeader
+        title="LNMIIT, Jaipur"
         subtitle={`${availableMachines.length} machines available`} 
         subtitleColor="green"
       />
