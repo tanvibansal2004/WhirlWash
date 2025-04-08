@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 25,
     fontWeight: '600',
+    color: '#3D4EB0'
   },
   header: {
     display: 'flex',

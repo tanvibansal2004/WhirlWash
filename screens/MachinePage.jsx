@@ -396,12 +396,10 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
-  SafeAreaView,
   StatusBar,
   View,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-
 import useMachines from '../hooks/useMachines';
 import useUserStatus from '../hooks/useUserStatus';
 import useElectricityStatus from '../hooks/useElectricityStatus';
@@ -413,6 +411,7 @@ import LoadingIndicator from '../components/common/LoadingIndicator';
 import machineService from '../services/machineService';
 import {getTimeRemaining, hasTimeExpired} from '../utils/timeUtils';
 import SectionHeader from '../components/SectionHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const checkingMachines = {};
 
