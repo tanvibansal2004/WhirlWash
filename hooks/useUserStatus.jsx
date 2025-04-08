@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 import firestore from '@react-native-firebase/firestore';
-import { Alert } from 'react-native';
+import {Alert} from 'react-native';
 
 /**
  * Custom hook to manage user status related to booking restrictions
  * @param {string} userEmail - Current user's email
  * @returns {Object} User status information
  */
-const useUserStatus = (userEmail) => {
+const useUserStatus = userEmail => {
   const [userCooldownUntil, setUserCooldownUntil] = useState(null);
   const [penaltyUntil, setPenaltyUntil] = useState(null);
   const [restrictionSeconds, setRestrictionSeconds] = useState(0);
@@ -45,6 +45,12 @@ const useUserStatus = (userEmail) => {
               const penaltyTime = new Date(userData.penaltyUntil);
               if (penaltyTime > new Date()) {
                 setPenaltyUntil(penaltyTime);
+
+                // CHANGE: First update the restriction states immediately
+                setRestrictionType('penalty');
+                setRestrictionSeconds(
+                  Math.ceil((penaltyTime - new Date()) / 1000),
+                );
 
                 // Check if there's a pending notification
                 if (userData.hasPenaltyNotification === true) {
