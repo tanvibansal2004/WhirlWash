@@ -9,6 +9,50 @@ const alreadyAutoUnbooked = {};
  * Service to handle machine-related operations
  */
 const machineService = {
+  // bookMachine: async (machineId, userEmail) => {
+  //   try {
+  //     // Get user details
+  //     const userDetails = await userService.getUserDetails(userEmail);
+  //     if (!userDetails) {
+  //       throw new Error('User profile not found');
+  //     }
+  
+  //     // Generate a 6-digit OTP
+  //     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  //     // Calculate OTP verification expiry time (60 seconds from now)
+  //     const otpVerifyExpiryTime = createOTPVerifyExpiryTime();
+      
+  //     const machineRef = firestore().collection('machines').doc(machineId);
+  //     const machineDoc = await machineRef.get();
+  //     const machineData = machineDoc.data();
+  
+  //     await machineRef.update({
+  //       pendingOTPVerification: true,
+  //       inUse: false,
+  //       bookedBy: userEmail,
+  //       bookingTime: firestore.FieldValue.serverTimestamp(),
+  //       status: 'pending-otp',
+  //       otpVerifyExpiryTime: otpVerifyExpiryTime,
+  //       userName: userDetails.Name || '',
+  //       userMobile: userDetails.MobileNo || '',
+  //       autoUnbooked: false,
+  //       otp: otp
+  //     });
+  
+  //     // We won't set a timer here as we now have a useEffect in the component to check
+  
+  //     return {
+  //       success: true,
+  //       machineNumber: machineData.number,
+  //       otp: otp
+  //     };
+  //   } catch (error) {
+  //     console.error('Error booking machine:', error);
+  //     throw error;
+  //   }
+  // },
+
   bookMachine: async (machineId, userEmail) => {
     try {
       // Get user details
@@ -23,32 +67,54 @@ const machineService = {
       // Calculate OTP verification expiry time (60 seconds from now)
       const otpVerifyExpiryTime = createOTPVerifyExpiryTime();
       
-      const machineRef = firestore().collection('machines').doc(machineId);
-      const machineDoc = await machineRef.get();
-      const machineData = machineDoc.data();
-  
-      await machineRef.update({
-        pendingOTPVerification: true,
-        inUse: false,
-        bookedBy: userEmail,
-        bookingTime: firestore.FieldValue.serverTimestamp(),
-        status: 'pending-otp',
-        otpVerifyExpiryTime: otpVerifyExpiryTime,
-        userName: userDetails.Name || '',
-        userMobile: userDetails.MobileNo || '',
-        autoUnbooked: false,
-        otp: otp
+      // Use a transaction to prevent race conditions
+      const result = await firestore().runTransaction(async (transaction) => {
+        // Get the machine document in the transaction
+        const machineRef = firestore().collection('machines').doc(machineId);
+        const machineDoc = await transaction.get(machineRef);
+        
+        if (!machineDoc.exists) {
+          throw new Error('Machine not found');
+        }
+        
+        const machineData = machineDoc.data();
+        
+        // Check if machine is already in use or pending OTP verification
+        if (machineData.inUse === true || machineData.pendingOTPVerification === true) {
+          throw new Error('Machine is already booked or pending verification');
+        }
+        
+        // Update machine status atomically
+        transaction.update(machineRef, {
+          pendingOTPVerification: true,
+          inUse: false,
+          bookedBy: userEmail,
+          bookingTime: firestore.FieldValue.serverTimestamp(),
+          status: 'pending-otp',
+          otpVerifyExpiryTime: otpVerifyExpiryTime,
+          userName: userDetails.Name || '',
+          userMobile: userDetails.MobileNo || '',
+          autoUnbooked: false,
+          otp: otp
+        });
+        
+        // Return machine data for success message
+        return {
+          success: true,
+          machineNumber: machineData.number,
+          otp: otp
+        };
       });
-  
-      // We won't set a timer here as we now have a useEffect in the component to check
-  
-      return {
-        success: true,
-        machineNumber: machineData.number,
-        otp: otp
-      };
+      
+      return result;
     } catch (error) {
-      console.error('Error booking machine:', error);
+      // console.error('Error booking machine:', error);
+      
+      // Check if this is a "already booked" error and provide a clearer message
+      if (error.message && error.message.includes('already booked')) {
+        throw new Error('This machine was just booked by someone else. Please try another machine.');
+      }
+      
       throw error;
     }
   },

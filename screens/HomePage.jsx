@@ -1,6 +1,6 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Platform, StatusBar, ScrollView } from 'react-native'
+import { Image, StyleSheet, Text, TouchableOpacity, View, Platform, StatusBar, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-// import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/Fontisto'
 import Icon1 from 'react-native-vector-icons/Ionicons'
 import { useNavigation } from '@react-navigation/native'
