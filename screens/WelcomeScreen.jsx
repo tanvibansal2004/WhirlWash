@@ -28,15 +28,17 @@ const WelcomeScreen = () => {
       console.log("user info:", userInfo);
 
       // Check if the email ends with "@lnmiit.ac.in"
+      
       const userEmail = userInfo.data.user.email;
+      const { idToken } = userInfo.data;
+
       // if (!userEmail.endsWith("@lnmiit.ac.in")) {
       //   Alert.alert("Access Denied", "Only LNMIIT email addresses are allowed.");
       //   await GoogleSignin.signOut();
       //   return;
       // }
 
-      const { idToken } = userInfo.data;
-
+      
       if (!idToken) {
         throw new Error("Google Sign-In failed: No ID token received.");
       }
@@ -64,10 +66,12 @@ const WelcomeScreen = () => {
         });
       } else {
         console.log("Regular user detected, navigating to Main");
+        console.log(userEmail); //working
         navigation.navigate('Main', {
           screen: 'Profile',
           params: { userEmail: userEmail }
         });
+
       }
 
     } catch (error) {

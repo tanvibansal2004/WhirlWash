@@ -234,8 +234,10 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Fontisto';
 import Icon1 from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
@@ -244,15 +246,56 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const HomePage = () => {
-  const [user, setUser] = useState('User');
+
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    const fetchNameByEmail = async () => {
+      try {
+        const user = auth().currentUser;
+
+        if (!user) {
+          console.log("No user signed in");
+          return;
+        }
+
+        const email = user.email;
+        console.log("Signed-in email:", email);
+
+        const querySnapshot = await firestore()
+          .collection('students')
+          .where('Email', '==', email)
+          .get();
+
+        if (!querySnapshot.empty) {
+          const studentData = querySnapshot.docs[0].data();
+          console.log("Fetched student data:", studentData);
+          const fullName = studentData?.Name || '';
+          const firstName = fullName.split(' ')[0];
+          setName(firstName);
+        } else {
+          console.log("No student found with email:", email);
+        }
+      } catch (error) {
+        console.error("Error fetching student name:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNameByEmail();
+  }, []);
+
+  
   const navigation = useNavigation();
+
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar backgroundColor="white" barStyle="dark-content" />
       
       <View style={styles.header}>
-        <Text style={styles.headerText}>Hello, {user}!</Text>
+      <Text style={styles.headerText}>Hello, {name ? name : 'User'}!</Text>
         <View style={styles.iconContainer}>
           <TouchableOpacity style={styles.iconButton}>
             <Icon name="bell" size={24} color="#3D4EB0" />
