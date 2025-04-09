@@ -1,4 +1,4 @@
-package com.whirlwashcopyy
+package com.whirlwashcopyyy
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

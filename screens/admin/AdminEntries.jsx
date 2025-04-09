@@ -1376,7 +1376,7 @@ const styles = StyleSheet.create({
     transform: [{scaleX: 1.2}, {scaleY: 1.2}],
   },
   editButton: {
-    backgroundColor: '#3D4EB0',
+    backgroundColor: '#B03D4E',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 4,

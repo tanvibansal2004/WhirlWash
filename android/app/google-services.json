@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "25775677166",
-    "project_id": "whirlwashcopyy",
-    "storage_bucket": "whirlwashcopyy.firebasestorage.app"
+    "project_number": "730412495428",
+    "project_id": "whirlwash-80d42",
+    "storage_bucket": "whirlwash-80d42.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:25775677166:android:830a6aff4bd63b384c5dff",
+        "mobilesdk_app_id": "1:730412495428:android:3f94981e7bb3544cc10211",
         "android_client_info": {
-          "package_name": "com.whirlwashcopyy"
+          "package_name": "com.whirlwashcopyyy"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "730412495428-9uggihthi7gn3f4p5lissc8bfhqq6jqs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.whirlwashcopyyy",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "730412495428-nufbau8ufjfrh7igi56sjpg03jqk10nl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBm6pF6X7-SGgQBVnIJg8K1XenW6YB5IfA"
+          "current_key": "AIzaSyABS3scMuyWfQZSgmL54i_jTZ5bwCQYTIg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "730412495428-nufbau8ufjfrh7igi56sjpg03jqk10nl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

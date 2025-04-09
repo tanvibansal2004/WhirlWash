@@ -190,11 +190,11 @@ const AppNavigator = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
 
         {/* Loading screen first */}
-      <Stack.Screen name="Loading" component={LoadingScreen} />
+        <Stack.Screen name="Loading" component={LoadingScreen} />
 
         {/* Welcome screen without bottom tab */}
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        
+
         {/* Main Tabs (with bottom navigation) */}
         <Stack.Screen 
           name="Main" 

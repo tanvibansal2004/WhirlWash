@@ -162,7 +162,7 @@ const Profile = ({route, navigation}) => {
           <ProfileDetail label="Roll No." value={userData.RollNo} />
           <ProfileDetail label="Email" value={userData.Email} />
           <ProfileDetail label="Mobile No." value={userData.MobileNo} />
-          <ProfileDetail label="Role" value={userData.Role} />
+          {/* <ProfileDetail label="Role" value={userData.Role} /> */}
           <ProfileDetail label="Room No." value={userData.RoomNo} />
         </View>
 

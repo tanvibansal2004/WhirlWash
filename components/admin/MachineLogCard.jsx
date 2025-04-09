@@ -16,7 +16,7 @@ const MachineLogCard = ({ machineNumber, logs, onViewMore }) => {
           <MaterialIcon
             name="local-laundry-service"
             size={24}
-            color="#3D4EB0"
+            color="#B03D4E"
           />
           <Text style={styles.machineTitle}>Machine No. {machineNumber}</Text>
         </View>
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 10,
-    color: '#3D4EB0',
+    color: '#B03D4E',
   },
   machineSubtitle: {
     fontSize: 12,

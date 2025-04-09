@@ -29,14 +29,14 @@ import SectionHeader from '../components/SectionHeader';
 
 // Define a professional color palette
 const COLORS = {
-  primary: '#3D4EB0',       // Rich blue - your app's existing primary color
-  cardBg: '#F5F7FA',        // Slightly blueish gray for cards
-  cardBgAlt: '#F8F8F8',     // Alternative light gray
+  primary: '#3D4EB0', // Rich blue - your app's existing primary color
+  cardBg: '#F5F7FA', // Slightly blueish gray for cards
+  cardBgAlt: '#F8F8F8', // Alternative light gray
   dropdownHeader: '#EAEEF2', // Slightly darker gray for dropdown headers
-  background: '#FFFFFF',    // White background
-  text: '#333333',          // Dark text
-  textLight: '#666666',     // Light text
-  border: '#E0E0E0',        // Border color
+  background: '#FFFFFF', // White background
+  text: '#333333', // Dark text
+  textLight: '#666666', // Light text
+  border: '#E0E0E0', // Border color
 };
 
 const ContactUs = () => {
@@ -51,18 +51,14 @@ const ContactUs = () => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <View style={styles.container}>
-        <SectionHeader 
-          title="Contact Us" 
-          subtitle="LNMIIT Jaipur"
-        />
-
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollViewContent}
           showsVerticalScrollIndicator={false}>
-          
+          <SectionHeader title="Contact Us" subtitle="LNMIIT Jaipur" />
+
           {/* Main Contact Information Section */}
-          <View style={styles.sectionContainer}>
+          {/* <View style={styles.sectionContainer}>
             {mainContacts.map((contact, index) => (
               <ContactCard
                 key={index}
@@ -73,10 +69,12 @@ const ContactUs = () => {
                 containerStyle={styles.contactCard}
               />
             ))}
-          </View>
+          </View> */}
 
           <View style={styles.sectionContainer}>
-            <SectionTitle style={styles.sectionTitleText}>Girl's Hostel - 0141-2688132</SectionTitle>
+            <SectionTitle style={styles.sectionTitleText}>
+              Girl's Hostel - 0141-2688132
+            </SectionTitle>
 
             {/* Collapsible Sections */}
             <DropdownSection
@@ -93,7 +91,7 @@ const ContactUs = () => {
               />
             </DropdownSection>
 
-            <DropdownSection
+            {/* <DropdownSection
               title="Associate Warden GH"
               isExpanded={expandedSections['Associate Warden GH']}
               onPress={() => toggleSection('Associate Warden GH')}
@@ -105,9 +103,9 @@ const ContactUs = () => {
                 email={associateWardenGHData.email}
                 containerStyle={styles.nestedContactCard}
               />
-            </DropdownSection>
+            </DropdownSection> */}
 
-            <DropdownSection
+            {/* <DropdownSection
               title="Jr. Hostel Superintendent GH"
               isExpanded={expandedSections['Jr. Hostel Superintendent GH']}
               onPress={() => toggleSection('Jr. Hostel Superintendent GH')}
@@ -119,7 +117,7 @@ const ContactUs = () => {
                 email={juniorHSGHData.email}
                 containerStyle={styles.nestedContactCard}
               />
-            </DropdownSection>
+            </DropdownSection> */}
 
             <DropdownSection
               title="Hostel Support GH"
@@ -141,8 +139,10 @@ const ContactUs = () => {
 
           {/* Developers Section */}
           <View style={styles.sectionContainer}>
-            <SectionTitle style={styles.sectionTitleText}>Developers</SectionTitle>
-            
+            <SectionTitle style={styles.sectionTitleText}>
+              Developers
+            </SectionTitle>
+
             <View style={styles.developersContainer}>
               {developersData.map((developer, index) => (
                 <DeveloperCard
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     padding: 15,
-    paddingBottom: 90,
+    paddingBottom: 70,
   },
   sectionContainer: {
     marginBottom: 20,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     padding: 15,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },

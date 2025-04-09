@@ -13,7 +13,7 @@ const WelcomeScreen = () => {
   useEffect(() => {
     // Configure Google Sign-In
     GoogleSignin.configure({
-      webClientId: '25775677166-pdah8c0dmhobokidfpk8u1e9d0u4flko.apps.googleusercontent.com',
+      webClientId: '730412495428-nufbau8ufjfrh7igi56sjpg03jqk10nl.apps.googleusercontent.com',
       offlineAccess: true,
       forceCodeForRefreshToken: true,
     });
