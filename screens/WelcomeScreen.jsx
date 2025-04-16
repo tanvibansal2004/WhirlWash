@@ -310,7 +310,7 @@ const WelcomeScreen = () => {
 
       <View style={{ alignItems: 'center' }}>
         <Image
-          source={require("../assets/image1.png")}
+          source={require("../assets/image1.jpg")}
           style={{ width: 250, height: 250 }}
         />
         <Text style={{ fontSize: 24, fontWeight: 'bold', marginTop: 8, color: '#3D4EB0', fontWeight: '600' }}>

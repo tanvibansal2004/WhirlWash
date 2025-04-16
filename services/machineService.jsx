@@ -6,6 +6,27 @@ import { createExpiryTime, createOTPVerifyExpiryTime } from '../utils/timeUtils'
 const alreadyAutoUnbooked = {};
 
 /**
+ * Helper function to update the lastUses array
+ * @param {Array} currentLastUses - The current lastUses array
+ * @param {Object} userEntry - The user entry to add
+ * @return {Array} - The updated lastUses array
+ */
+const updateLastUsesArray = (currentLastUses = [], userEntry) => {
+  const updatedLastUses = [...currentLastUses];
+  
+  // Only add new user if not already the most recent user
+  if (!updatedLastUses.length || updatedLastUses[0].email !== userEntry.email) {
+    // Remove the oldest entry if we already have 3 entries
+    if (updatedLastUses.length >= 3) {
+      updatedLastUses.pop(); // Remove the oldest entry
+    }
+    updatedLastUses.unshift(userEntry); // Add new entry at the beginning
+  }
+  
+  return updatedLastUses;
+};
+
+/**
  * Service to handle machine-related operations
  */
 const machineService = {
@@ -236,7 +257,7 @@ const machineService = {
       const machineData = machineDoc.data();
 
       // Prepare updated lastUses array
-      const updatedLastUses = machineData.lastUses || [];
+      // const updatedLastUses = machineData.lastUses || [];
       const newUserEntry = {
         email: userEmail,
         name: machineData.userName || '',
@@ -244,17 +265,19 @@ const machineService = {
         timestamp: new Date().toISOString(),
       };
 
+      const updatedLastUses = updateLastUsesArray(machineData.lastUses, newUserEntry);
+
       // Only add new user if not already the most recent user
-      if (
-        !updatedLastUses.length ||
-        updatedLastUses[0].email !== userEmail
-      ) {
-        // Shift existing entries down
-        if (updatedLastUses.length >= 3) {
-          updatedLastUses.pop(); // Remove the oldest entry
-        }
-        updatedLastUses.unshift(newUserEntry);
-      }
+      // if (
+      //   !updatedLastUses.length ||
+      //   updatedLastUses[0].email !== userEmail
+      // ) {
+      //   // Shift existing entries down
+      //   if (updatedLastUses.length >= 3) {
+      //     updatedLastUses.pop(); // Remove the oldest entry
+      //   }
+      //   updatedLastUses.unshift(newUserEntry);
+      // }
 
       await machineRef.update({
         inUse: false,
@@ -309,24 +332,31 @@ const machineService = {
       // Apply penalty to user
       await userService.applyPenalty(userEmail);
 
+      const newUserEntry = {
+        email: userEmail,
+        name: machineData.userName || 'Unknown User',
+        mobile: machineData.userMobile || '',
+        timestamp: new Date().toISOString(),
+      };
+
       // Prepare updated lastUses array if needed
-      const updatedLastUses = machineData.lastUses || [];
+      const updatedLastUses = updateLastUsesArray(machineData.lastUses, newUserEntry)
       
       // If the user is not the most recent in lastUses, add them
-      if (!updatedLastUses.length || updatedLastUses[0].email !== userEmail) {
-        const newUserEntry = {
-          email: userEmail,
-          name: machineData.userName || 'Unknown User',
-          mobile: machineData.userMobile || '',
-          timestamp: new Date().toISOString(),
-        };
+      // if (!updatedLastUses.length || updatedLastUses[0].email !== userEmail) {
+      //   const newUserEntry = {
+      //     email: userEmail,
+      //     name: machineData.userName || 'Unknown User',
+      //     mobile: machineData.userMobile || '',
+      //     timestamp: new Date().toISOString(),
+      //   };
         
-        if (updatedLastUses.length >= 3) {
-          updatedLastUses.pop();
-        }
+      //   if (updatedLastUses.length >= 3) {
+      //     updatedLastUses.pop();
+      //   }
         
-        updatedLastUses.unshift(newUserEntry);
-      }
+      //   updatedLastUses.unshift(newUserEntry);
+      // }
 
       // Update machine status
       await firestore().collection('machines').doc(machineId).update({

@@ -26,6 +26,7 @@ import {
 } from '../data/contactData';
 import useExpandableSections from '../hooks/useExpandableSections';
 import SectionHeader from '../components/SectionHeader';
+// import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Define a professional color palette
 const COLORS = {
@@ -48,7 +49,7 @@ const ContactUs = () => {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <View style={styles.container}>
         <ScrollView
